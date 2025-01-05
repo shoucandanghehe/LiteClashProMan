@@ -1,14 +1,18 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Literal, Optional, Union, Set
+from typing import Dict, Generic, List, Literal, Optional, Set, TypeVar, Union
 
 import yaml
 from pydantic import BaseModel, Extra, validator
 from pytz import UnknownTimeZoneError, timezone
 
+T = TypeVar(
+    "T", Literal["jms"], Literal["ClashSub"], Literal["ClashFile"], Literal["SSSub"]
+)
 
-class Subscribe(BaseModel, extra=Extra.allow):
-    type: str
+
+class Subscribe(BaseModel, Generic[T], extra=Extra.allow):
+    type: T
     subtz: str = "Asia/Shanghai"
 
     @validator("subtz")
@@ -20,7 +24,7 @@ class Subscribe(BaseModel, extra=Extra.allow):
         return tz
 
 
-class JMS(Subscribe):
+class JMS(Subscribe[Literal["jms"]]):
     """just my socks"""
 
     type: Literal["jms"] = "jms"
@@ -28,18 +32,25 @@ class JMS(Subscribe):
     counter: Optional[str]
 
 
-class ClashSub(Subscribe):
+class ClashSub(Subscribe[Literal["ClashSub"]]):
     """Generic clash profile subscription"""
 
     type: Literal["ClashSub"] = "ClashSub"
     url: str
 
 
-class ClashFile(Subscribe):
+class ClashFile(Subscribe[Literal["ClashFile"]]):
     """Generic clash profile on local disk"""
 
     type: Literal["ClashFile"] = "ClashFile"
     file: str
+
+
+class SSSub(Subscribe[Literal["SSSub"]]):
+    """Generic SS profile subscription"""
+
+    type: Literal["SSSub"] = "SSSub"
+    url: str
 
 
 class Profile(BaseModel):
@@ -49,9 +60,9 @@ class Profile(BaseModel):
 
 
 class Config(BaseModel, extra=Extra.ignore):
-    log_level: Literal[
-        "TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
-    ] = "INFO"
+    log_level: Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = (
+        "INFO"
+    )
     sentry_dsn: Optional[str]
 
     download_thread: int = 4
@@ -68,7 +79,7 @@ class Config(BaseModel, extra=Extra.ignore):
     urlprefix: str = "/path/to/mess/url"
     headers: Dict[str, str] = {"profile-update-interval": "24"}
 
-    subscribes: Dict[str, Union[JMS, ClashSub, ClashFile]]
+    subscribes: Dict[str, Union[JMS, ClashSub, ClashFile, SSSub]]
     profiles: Dict[str, Profile]
 
     config_file_path: str

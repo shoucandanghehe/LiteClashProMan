@@ -8,7 +8,7 @@ from loguru import logger
 from ..config import config
 from ..model.clash import SS, SSR, ClashTemplate, Snell, Socks5, Trojan, Vmess
 from ..utils import Download
-from . import clash, jms
+from . import clash, jms, ss
 
 try:
     from importlib.metadata import version
@@ -39,6 +39,8 @@ async def _subs(
                 _proxies = await clash.get_sub(sub.url)
             if sub.type == "ClashFile":
                 _proxies = await clash.get_file(sub.file)
+            if sub.type == "SSSub":
+                _proxies = await ss.get(sub.url)
             _subs_caches[name] = {"expire_time": now + 7200, "proxies": _proxies}
         proxies.extend(_proxies)
     return proxies

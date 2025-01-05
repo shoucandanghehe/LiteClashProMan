@@ -1,6 +1,23 @@
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import BaseModel, Extra, Field
+
+Cipher = Literal[
+    "aes-128-gcm",
+    "aes-192-gcm",
+    "aes-256-gcm",
+    "aes-128-cfb",
+    "aes-192-cfb",
+    "aes-256-cfb",
+    "aes-128-ctr",
+    "aes-192-ctr",
+    "aes-256-ctr",
+    "rc4-md5",
+    "chacha20-ietf",
+    "xchacha20",
+    "chacha20-ietf-poly1305",
+    "xchacha20-ietf-poly1305",
+]
 
 
 class SS(BaseModel, extra=Extra.allow):
@@ -8,22 +25,7 @@ class SS(BaseModel, extra=Extra.allow):
     type: Literal["ss"] = "ss"
     server: str
     port: int
-    cipher: Literal[
-        "aes-128-gcm",
-        "aes-192-gcm",
-        "aes-256-gcm",
-        "aes-128-cfb",
-        "aes-192-cfb",
-        "aes-256-cfb",
-        "aes-128-ctr",
-        "aes-192-ctr",
-        "aes-256-ctr",
-        "rc4-md5",
-        "chacha20-ietf",
-        "xchacha20",
-        "chacha20-ietf-poly1305",
-        "xchacha20-ietf-poly1305",
-    ]
+    cipher: Cipher
     password: str
     udp: Optional[bool] = False
 
